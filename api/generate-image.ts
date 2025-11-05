@@ -1,3 +1,4 @@
+// @ts-ignore
 import { GoogleGenAI } from "@google/genai";
 
 export default async function handler(req: any, res: any) {
@@ -11,11 +12,13 @@ export default async function handler(req: any, res: any) {
     return res.status(400).json({ error: 'Prompt is required' });
   }
 
+  // @ts-ignore
   if (!process.env.GEMINI_API_KEY) {
     return res.status(500).json({ error: 'API key not configured' });
   }
 
   try {
+    // @ts-ignore
     const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
     const response = await ai.models.generateImages({
       model: 'imagen-4.0-generate-001',
