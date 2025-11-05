@@ -1,12 +1,9 @@
-// Путь к файлу в вашем БЭКЕНД-проекте: /api/generate-image.ts
-
 import { GoogleGenAI } from "@google/genai";
-import type { NextApiRequest, NextApiResponse } from 'next';
 
 // Эта функция-обертка добавляет необходимые CORS-заголовки
-const allowCors = (fn: (req: NextApiRequest, res: NextApiResponse) => Promise<void>) => async (req: NextApiRequest, res: NextApiResponse) => {
+const allowCors = (fn: Function) => async (req: any, res: any) => {
   res.setHeader('Access-Control-Allow-Credentials', 'true');
-  res.setHeader('Access-Control-Allow-Origin', '*'); // Разрешает запросы с любого домена
+  res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   
@@ -17,13 +14,12 @@ const allowCors = (fn: (req: NextApiRequest, res: NextApiResponse) => Promise<vo
   return await fn(req, res);
 };
 
-// Ваша основная логика API
-async function handler(req: NextApiRequest, res: NextApiResponse) {
+// Основная логика API
+async function handler(req: any, res: any) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
-  // ... остальная часть вашей логики без изменений ...
   const { prompt } = req.body;
 
   if (!prompt) {
@@ -31,15 +27,15 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   }
 
   if (!process.env.GEMINI_API_KEY) {
-      return res.status(500).json({ error: 'API key not configured on the server' });
+    return res.status(500).json({ error: 'API key not configured on the server' });
   }
 
   try {
     const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
     const response = await ai.models.generateImages({
-        model: 'imagen-4.0-generate-001',
-        prompt,
-        config: { numberOfImages: 1, outputMimeType: 'image/jpeg' },
+      model: 'imagen-4.0-generate-001',
+      prompt,
+      config: { numberOfImages: 1, outputMimeType: 'image/jpeg' },
     });
 
     const base64ImageBytes: string = response.generatedImages[0].image.imageBytes;
